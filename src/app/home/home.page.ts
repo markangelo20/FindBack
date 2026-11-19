@@ -1,4 +1,3 @@
-
 import { CommonModule } from '@angular/common';
 
 import {
@@ -724,9 +723,11 @@ export class HomePage implements OnInit, OnDestroy {
         return;
       }
 
-      this.items = reports.map(
-        item => this.toDashboardItem(item)
-      );
+      // Defensive filter: claimed/returned reports must never
+      // reappear in the active dashboard even from stale data.
+      this.items = reports
+        .filter(item => item.status === 'active')
+        .map(item => this.toDashboardItem(item));
 
     } catch (error: unknown) {
 

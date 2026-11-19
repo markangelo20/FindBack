@@ -1,4 +1,3 @@
-
 import { Injectable } from '@angular/core';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { AuthService } from './auth.service';
@@ -103,6 +102,9 @@ export class FindBackDataService {
         .select(
           'id,owner_id,item_type,name,category,location,item_date,description,pickup_location,photo_path,status,created_at'
         )
+        // The public dashboard must show only available items.
+        // Claimed reports have status 'returned'.
+        .eq('status', 'active')
         .order('created_at', {
           ascending: false
         })
@@ -130,6 +132,30 @@ export class FindBackDataService {
     );
 
     return reports;
+  }
+
+  // =====================================
+  // REMOVE CLAIMED ITEM FROM PUBLIC HISTORY
+  // =====================================
+
+  async removeClaimedItem(claimId: string): Promise<void> {
+    await this.currentUserId();
+
+    if (!claimId) {
+      throw new Error('A claimed item must be selected.');
+    }
+
+    // Supabase RPC enforces that only the original finder/report
+    // owner can permanently hide a completed return publicly.
+    // Private claim audit records remain intact.
+    const { error } = await this.client.rpc(
+      'findback_remove_claimed_item',
+      { p_claim: claimId }
+    );
+
+    if (error) {
+      throw new Error(error.message || 'Unable to remove claimed item.');
+    }
   }
 
   // =====================================

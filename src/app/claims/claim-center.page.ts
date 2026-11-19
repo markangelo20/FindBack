@@ -1,4 +1,3 @@
-
 import { CommonModule } from '@angular/common';
 import {
   Component,
@@ -22,7 +21,8 @@ import {
   shieldCheckmarkOutline,
   checkmarkCircleOutline,
   refreshOutline,
-  checkmarkDoneOutline
+  checkmarkDoneOutline,
+  trashOutline
 } from 'ionicons/icons';
 
 import {
@@ -31,6 +31,7 @@ import {
   FindBackClaim,
   ClaimedItemHistory
 } from '../services/claim.service';
+import { FindBackDataService } from '../services/findback-data.service';
 
 type ClaimTab =
   | 'mine'
@@ -407,6 +408,17 @@ type ClaimTab =
               <ion-icon name="checkmark-circle-outline"></ion-icon>
               Approved by finder and received by claimant
             </p>
+
+            <!-- Only the report owner may remove the public record. -->
+            <button
+              *ngIf="canRemoveClaimedItem(item)"
+              type="button"
+              class="remove-item"
+              [disabled]="busy"
+              (click)="confirmRemoveClaimedItem(item)">
+              <ion-icon name="trash-outline"></ion-icon>
+              Remove Item
+            </button>
           </article>
         </ng-container>
 
@@ -727,6 +739,23 @@ type ClaimTab =
       align-items:center;
     }
 
+    .remove-item {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      width:100%;
+      min-height:43px;
+      margin-top:14px;
+      padding:10px 13px;
+      border:1px solid #f0c9cd;
+      border-radius:11px;
+      background:#fff3f4;
+      color:#ab3747;
+      font-size:12px;
+      font-weight:800;
+    }
+
     .history-names {
       display:grid;
       grid-template-columns:1fr 1fr;
@@ -777,6 +806,7 @@ export class ClaimCenterPage implements OnInit, OnDestroy {
 
   constructor(
     private readonly service: ClaimService,
+    private readonly reportsData: FindBackDataService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly alerts: AlertController,
@@ -787,19 +817,21 @@ export class ClaimCenterPage implements OnInit, OnDestroy {
       shieldCheckmarkOutline,
       checkmarkCircleOutline,
       refreshOutline,
-      checkmarkDoneOutline
+      checkmarkDoneOutline,
+      trashOutline
     });
   }
 
   get myClaims(): FindBackClaim[] {
+    // Completed claims belong in Claimed Items only.
     return this.claims.filter(
-      c => c.claimant_id === this.me
+      c => c.claimant_id === this.me && c.status !== 'claimed'
     );
   }
 
   get toReview(): FindBackClaim[] {
     return this.claims.filter(
-      c => c.finder_id === this.me
+      c => c.finder_id === this.me && c.status !== 'claimed'
     );
   }
 
@@ -1032,6 +1064,41 @@ export class ClaimCenterPage implements OnInit, OnDestroy {
       () => this.service.cancel(claim.id),
       'Claim request cancelled.'
     );
+  }
+
+  canRemoveClaimedItem(item: ClaimedItemHistory): boolean {
+    // UI permission is advisory; the server RPC enforces ownership.
+    return this.claims.some(claim =>
+      claim.id === item.claim_id &&
+      claim.finder_id === this.me &&
+      claim.status === 'claimed'
+    );
+  }
+
+  async confirmRemoveClaimedItem(item: ClaimedItemHistory): Promise<void> {
+    if (this.busy || !this.canRemoveClaimedItem(item)) return;
+
+    const alert = await this.alerts.create({
+      header: 'Remove claimed item?',
+      message: 'Remove this item from Claimed Items permanently? ' +
+        'It will no longer appear in the public history. ' +
+        'Private audit records will be retained for accountability.',
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Remove Item',
+          role: 'destructive',
+          handler: () => {
+            void this.perform(
+              () => this.reportsData.removeClaimedItem(item.claim_id),
+              'Claimed item removed from public history.'
+            );
+          }
+        }
+      ]
+    });
+
+    await alert.present();
   }
 
   statusLabel(status: string): string {

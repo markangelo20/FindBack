@@ -3,12 +3,12 @@
 
   <main class="auth-page">
 
-    <!-- ANIMATED BACKGROUND -->
+    <!-- BACKGROUND -->
 
     <div class="glow glow-blue"></div>
     <div class="glow glow-green"></div>
 
-    <!-- FINDBACK BRAND -->
+    <!-- BRAND -->
 
     <section class="brand-section">
 
@@ -17,25 +17,22 @@
         </ion-icon>
       </div>
 
-      <h1>
-        find<span>back</span>.
-      </h1>
+      <h1>find<span>back</span>.</h1>
 
       <p>Campus Lost &amp; Found</p>
 
       <div class="school-pill">
-
         <ion-icon name="school-outline">
         </ion-icon>
 
         <span>
           NEUST &amp; Colegio de San Leonardo
         </span>
-
       </div>
+
     </section>
 
-    <!-- AUTHENTICATION CARD -->
+    <!-- AUTH CARD -->
 
     <section class="auth-card">
 
@@ -45,21 +42,8 @@
           WELCOME TO FINDBACK
         </span>
 
-        <h2>
-          {{
-            mode === 'login'
-              ? 'Welcome back!'
-              : 'Create an account'
-          }}
-        </h2>
-
-        <p>
-          {{
-            mode === 'login'
-              ? 'Sign in to your FindBack account to continue.'
-              : 'Create your account with one-time School ID screening.'
-          }}
-        </p>
+        <h2>{{ headingTitle }}</h2>
+        <p>{{ headingDescription }}</p>
 
       </div>
 
@@ -68,7 +52,11 @@
       <div
         class="auth-tabs"
         role="group"
-        aria-label="Authentication mode">
+        aria-label="Authentication mode"
+        *ngIf="
+          mode === 'login' ||
+          mode === 'register'
+        ">
 
         <button
           type="button"
@@ -76,9 +64,7 @@
           [attr.aria-pressed]="mode === 'login'"
           [disabled]="loading"
           (click)="setMode('login')">
-
           Login
-
         </button>
 
         <button
@@ -87,14 +73,35 @@
           [attr.aria-pressed]="mode === 'register'"
           [disabled]="loading"
           (click)="setMode('register')">
-
           Register
-
         </button>
 
       </div>
 
-      <!-- AUTH FORM -->
+      <!-- RECOVERY EMAIL NOTICE -->
+
+      <div
+        class="recovery-notice fade-in"
+        *ngIf="
+          mode === 'reset' &&
+          !recoveryVerified
+        ">
+
+        <ion-icon name="mail-outline">
+        </ion-icon>
+
+        Password reset code requested for:
+
+        <strong>{{ email }}</strong>
+
+        <p>
+          Enter the 8-digit verification
+          code from your email to continue.
+        </p>
+
+      </div>
+
+      <!-- FORM -->
 
       <form
         (ngSubmit)="submit()"
@@ -152,7 +159,9 @@
 
         <!-- EMAIL -->
 
-        <div class="form-group">
+        <div
+          class="form-group fade-in"
+          *ngIf="mode !== 'reset'">
 
           <label for="email">
             Email Address
@@ -177,9 +186,14 @@
 
         </div>
 
-        <!-- PASSWORD -->
+        <!-- LOGIN / REGISTER PASSWORD -->
 
-        <div class="form-group">
+        <div
+          class="form-group"
+          *ngIf="
+            mode === 'login' ||
+            mode === 'register'
+          ">
 
           <label for="password">
             Password
@@ -212,12 +226,12 @@
               type="button"
               class="eye-button"
               [disabled]="loading"
+              (click)="togglePassword()"
               [attr.aria-label]="
                 showPassword
                   ? 'Hide password'
                   : 'Show password'
-              "
-              (click)="togglePassword()">
+              ">
 
               <ion-icon
                 [name]="
@@ -231,11 +245,11 @@
 
           </div>
 
-          <!-- PASSWORD REQUIREMENTS -->
+          <!-- REGISTRATION PASSWORD RULES -->
 
           <div
-            *ngIf="mode === 'register'"
             class="fade-in"
+            *ngIf="mode === 'register'"
             aria-label="Password requirements">
 
             <small
@@ -261,6 +275,19 @@
           </div>
 
         </div>
+
+        <!-- FORGOT PASSWORD -->
+
+        <button
+          *ngIf="mode === 'login'"
+          type="button"
+          class="recovery-link"
+          [disabled]="loading"
+          (click)="openForgotPassword()">
+
+          Forgot Password?
+
+        </button>
 
         <!-- CONFIRM PASSWORD -->
 
@@ -311,6 +338,234 @@
 
         </div>
 
+        <!-- FORGOT PASSWORD INFORMATION -->
+
+        <p
+          class="recovery-help fade-in"
+          *ngIf="mode === 'forgot'">
+
+          We'll send a verification code to
+          your registered email address.
+
+          You'll need to verify the code
+          before creating a new password.
+
+        </p>
+
+        <!-- ================================= -->
+        <!-- STEP 1: VERIFY 8-DIGIT CODE       -->
+        <!-- ================================= -->
+
+        <div
+          class="form-group fade-in"
+          *ngIf="
+            mode === 'reset' &&
+            !recoveryVerified
+          ">
+
+          <label for="recoveryCode">
+            8-Digit Verification Code
+          </label>
+
+          <div class="input-box">
+
+            <ion-icon name="key-outline">
+            </ion-icon>
+
+            <input
+              id="recoveryCode"
+              type="text"
+              name="recoveryCode"
+              [(ngModel)]="recoveryCode"
+              placeholder="Enter 8-digit code"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              pattern="[0-9]{8}"
+              maxlength="8"
+              [disabled]="loading"
+              required>
+
+          </div>
+
+          <small
+            [style.color]="
+              isRecoveryCodeValid
+                ? '#148f62'
+                : '#8193a6'
+            ">
+
+            {{
+              isRecoveryCodeValid
+                ? '✓ 8-digit code entered'
+                : 'Enter the complete 8-digit code.'
+            }}
+
+          </small>
+
+        </div>
+
+        <!-- ================================= -->
+        <!-- STEP 2: CREATE NEW PASSWORD      -->
+        <!-- ================================= -->
+
+        <ng-container
+          *ngIf="
+            mode === 'reset' &&
+            recoveryVerified
+          ">
+
+          <!-- VERIFIED MESSAGE -->
+
+          <div
+            class="otp-verified-box fade-in"
+            role="status">
+
+            <ion-icon
+              name="checkmark-circle-outline">
+            </ion-icon>
+
+            <strong>
+              Email Verified Successfully!
+            </strong>
+
+            <p>
+              Your verification code has
+              been confirmed.
+
+              You can now create a new password.
+            </p>
+
+          </div>
+
+          <!-- NEW PASSWORD -->
+
+          <div class="form-group fade-in">
+
+            <label for="newPassword">
+              New Password
+            </label>
+
+            <div class="input-box">
+
+              <ion-icon name="lock-closed-outline">
+              </ion-icon>
+
+              <input
+                id="newPassword"
+                name="newPassword"
+                [type]="
+                  showNewPassword
+                    ? 'text'
+                    : 'password'
+                "
+                [(ngModel)]="newPassword"
+                placeholder="Create new password"
+                autocomplete="new-password"
+                [disabled]="loading"
+                required>
+
+              <button
+                type="button"
+                class="eye-button"
+                [disabled]="loading"
+                (click)="toggleNewPassword()"
+                [attr.aria-label]="
+                  showNewPassword
+                    ? 'Hide password'
+                    : 'Show password'
+                ">
+
+                <ion-icon
+                  [name]="
+                    showNewPassword
+                      ? 'eye-off-outline'
+                      : 'eye-outline'
+                  ">
+                </ion-icon>
+
+              </button>
+
+            </div>
+
+            <!-- NEW PASSWORD REQUIREMENTS -->
+
+            <div
+              class="fade-in"
+              aria-label="New password requirements">
+
+              <small
+                *ngFor="
+                  let requirement of passwordRequirements
+                "
+                [style.color]="
+                  requirement.test(newPassword)
+                    ? '#148f62'
+                    : '#8193a6'
+                ">
+
+                {{
+                  requirement.test(newPassword)
+                    ? '✓'
+                    : '○'
+                }}
+
+                {{ requirement.label }}
+
+              </small>
+
+            </div>
+
+          </div>
+
+          <!-- CONFIRM NEW PASSWORD -->
+
+          <div class="form-group fade-in">
+
+            <label for="confirmNewPassword">
+              Confirm New Password
+            </label>
+
+            <div class="input-box">
+
+              <ion-icon name="lock-closed-outline">
+              </ion-icon>
+
+              <input
+                id="confirmNewPassword"
+                name="confirmNewPassword"
+                [type]="
+                  showNewPassword
+                    ? 'text'
+                    : 'password'
+                "
+                [(ngModel)]="confirmNewPassword"
+                placeholder="Confirm new password"
+                autocomplete="new-password"
+                [disabled]="loading"
+                required>
+
+            </div>
+
+            <small
+              *ngIf="confirmNewPassword.length > 0"
+              [style.color]="
+                doNewPasswordsMatch
+                  ? '#148f62'
+                  : '#b83f39'
+              ">
+
+              {{
+                doNewPasswordsMatch
+                  ? '✓ Passwords match'
+                  : 'Passwords do not match.'
+              }}
+
+            </small>
+
+          </div>
+
+        </ng-container>
+
         <!-- FEEDBACK -->
 
         <div
@@ -318,12 +573,8 @@
           role="status"
           aria-live="polite"
           *ngIf="feedback"
-          [class.success]="
-            feedbackType === 'success'
-          "
-          [class.error]="
-            feedbackType === 'error'
-          ">
+          [class.success]="feedbackType === 'success'"
+          [class.error]="feedbackType === 'error'">
 
           <ion-icon
             [name]="
@@ -344,15 +595,7 @@
           class="submit-button"
           [disabled]="loading">
 
-          <span>
-            {{
-              loading
-                ? 'Please wait...'
-                : mode === 'login'
-                  ? 'Login to FindBack'
-                  : 'Create Account'
-            }}
-          </span>
+          <span>{{ submitLabel }}</span>
 
           <ion-icon name="arrow-forward-outline">
           </ion-icon>
@@ -361,7 +604,57 @@
 
       </form>
 
-      <!-- REGISTRATION-ONLY SCANNER NOTICE -->
+      <!-- RESEND CODE / CHANGE EMAIL -->
+
+      <div
+        class="recovery-actions"
+        *ngIf="
+          mode === 'reset' &&
+          !recoveryVerified
+        ">
+
+        <button
+          type="button"
+          class="recovery-link"
+          [disabled]="loading"
+          (click)="resendRecoveryCode()">
+
+          Resend Code
+
+        </button>
+
+        <button
+          type="button"
+          class="recovery-link"
+          [disabled]="loading"
+          (click)="changeRecoveryEmail()">
+
+          Change Email
+
+        </button>
+
+      </div>
+
+      <!-- BACK TO LOGIN -->
+
+      <button
+        type="button"
+        class="recovery-back"
+        *ngIf="
+          mode === 'forgot' ||
+          mode === 'reset'
+        "
+        [disabled]="loading"
+        (click)="backToLogin()">
+
+        <ion-icon name="arrow-back-outline">
+        </ion-icon>
+
+        Back to Login
+
+      </button>
+
+      <!-- SCHOOL ID SCANNER NOTICE -->
 
       <div
         class="id-note"
@@ -406,7 +699,7 @@
 
   </main>
 
-  <!-- REGISTRATION LOADING SCREEN -->
+  <!-- REGISTRATION LOADING -->
 
   <div
     class="registration-loading"

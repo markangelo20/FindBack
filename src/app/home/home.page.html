@@ -1,0 +1,1308 @@
+
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <div class="topbar">
+
+      <!-- FINDBACK LOGO -->
+
+      <div class="brand">
+        <div class="brand-logo">
+          <ion-icon name="sparkles-outline"></ion-icon>
+        </div>
+
+        <div class="brand-text">
+          <h2>find<span>back</span>.</h2>
+          <p>Campus Lost &amp; Found</p>
+        </div>
+      </div>
+
+      <!-- HEADER BUTTONS -->
+
+      <div class="header-actions">
+
+        <!-- MESSAGES -->
+
+        <button
+          type="button"
+          class="messages-nav-btn"
+          aria-label="Open Messages"
+          title="Messages"
+          (click)="openMessages()">
+
+          <ion-icon name="chatbubbles-outline"></ion-icon>
+
+        </button>
+
+        <!-- SIMILAR ITEM NOTIFICATIONS -->
+
+        <button
+          type="button"
+          class="notification-btn"
+          aria-label="Notifications"
+          (click)="showNotifications()">
+
+          <ion-icon name="notifications-outline"></ion-icon>
+
+          <span
+            *ngIf="unreadMatchCount > 0"
+            class="match-badge"
+            [attr.aria-label]="
+              unreadMatchCount + ' possible matching items'
+            ">
+
+            {{
+              unreadMatchCount > 99
+                ? '99+'
+                : unreadMatchCount
+            }}
+
+          </span>
+
+        </button>
+
+        <!-- PROFILE -->
+
+        <button
+          type="button"
+          class="profile-nav-btn"
+          aria-label="Open My Profile"
+          title="My Profile"
+          (click)="openProfile()">
+
+          <ion-icon name="person-circle-outline"></ion-icon>
+
+        </button>
+
+      </div>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<!-- ===================================== -->
+<!-- DASHBOARD -->
+<!-- ===================================== -->
+
+<ion-content [fullscreen]="true">
+
+  <main class="home-container">
+
+    <!-- WELCOME -->
+
+    <section class="hero-card animate-up">
+
+      <div class="hero-circle circle-one"></div>
+      <div class="hero-circle circle-two"></div>
+
+      <div
+        class="floating-object"
+        aria-hidden="true">
+        🎒
+      </div>
+
+      <div class="hero-content">
+
+        <div class="hero-label">
+          <span class="pulse-dot"></span>
+          CAMPUS LOST &amp; FOUND
+        </div>
+
+        <h1>
+          Lost it?<br>
+          <span>Let's find it.</span>
+        </h1>
+
+        <p>
+          Helping our campus community
+          reconnect with their lost belongings.
+        </p>
+
+        <div class="hero-footer">
+
+          <ion-icon
+            name="shield-checkmark-outline">
+          </ion-icon>
+
+          Report. Discover. Recover.
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===================================== -->
+    <!-- REPORT ACTIONS -->
+    <!-- ===================================== -->
+
+    <section class="animate-up delay-1">
+
+      <div class="section-title">
+        <div>
+          <span class="eyebrow">GET STARTED</span>
+          <h2>How can we help?</h2>
+        </div>
+      </div>
+
+      <div class="action-grid">
+
+        <!-- REPORT LOST -->
+
+        <button
+          type="button"
+          class="action-card lost-card"
+          (click)="openReport('lost')">
+
+          <div class="action-icon lost-icon">
+            <ion-icon name="search-outline"></ion-icon>
+          </div>
+
+          <div class="action-info">
+            <h3>Report Lost</h3>
+            <p>Missing an item?</p>
+          </div>
+
+          <ion-icon
+            class="action-arrow"
+            name="arrow-forward-outline">
+          </ion-icon>
+
+        </button>
+
+        <!-- REPORT FOUND -->
+
+        <button
+          type="button"
+          class="action-card found-card"
+          (click)="openReport('found')">
+
+          <div class="action-icon found-icon">
+            <ion-icon name="add-circle-outline"></ion-icon>
+          </div>
+
+          <div class="action-info">
+            <h3>Report Found</h3>
+            <p>Help return an item</p>
+          </div>
+
+          <ion-icon
+            class="action-arrow"
+            name="arrow-forward-outline">
+          </ion-icon>
+
+        </button>
+
+      </div>
+    </section>
+
+    <!-- LIVE STATUS -->
+
+    <p class="live-status">
+      Posts from signed-in FindBack students
+      are shared through Supabase.
+    </p>
+
+    <!-- ===================================== -->
+    <!-- SECURE CLAIMS WITH NUMBER INDICATOR -->
+    <!-- ===================================== -->
+
+    <section class="claims-promo">
+
+      <div>
+
+        <h3>
+          Secure Claims &amp; Claimed Items
+        </h3>
+
+        <p>
+          Manage claim requests and see
+          successfully returned belongings.
+        </p>
+
+      </div>
+
+      <button
+        type="button"
+        (click)="openClaims()"
+        [attr.aria-label]="
+          claimsActionCount > 0
+            ? 'View Claims, ' + claimsActionCount +
+              ' actions need attention'
+            : 'View Claims'
+        "
+        style="
+          position: relative;
+          overflow: visible;
+          flex-shrink: 0;
+        ">
+
+        View Claims
+
+        <!-- DYNAMIC CLAIM NUMBER INDICATOR -->
+
+        <span
+          *ngIf="claimsActionCount > 0"
+          style="
+            position: absolute;
+            top: -10px;
+            right: -9px;
+            min-width: 23px;
+            height: 23px;
+            padding: 0 5px;
+            border: 2px solid white;
+            border-radius: 999px;
+            background: #ed3f58;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 800;
+            line-height: 1;
+            box-shadow: 0 3px 8px rgba(210,44,72,.3);
+          ">
+
+          {{
+            claimsActionCount > 99
+              ? '99+'
+              : claimsActionCount
+          }}
+
+        </span>
+
+      </button>
+
+    </section>
+
+    <!-- ===================================== -->
+    <!-- STATISTICS -->
+    <!-- ===================================== -->
+
+    <section class="statistics animate-up delay-2">
+
+      <div class="stat-box">
+
+        <span class="stat-number">
+          {{ items.length }}
+        </span>
+
+        <span class="stat-label">
+          Total Reports
+        </span>
+
+      </div>
+
+      <div class="stat-divider"></div>
+
+      <div class="stat-box">
+
+        <span class="stat-number lost-number">
+          {{ lostCount }}
+        </span>
+
+        <span class="stat-label">
+          Lost Items
+        </span>
+
+      </div>
+
+      <div class="stat-divider"></div>
+
+      <div class="stat-box">
+
+        <span class="stat-number found-number">
+          {{ foundCount }}
+        </span>
+
+        <span class="stat-label">
+          Found Items
+        </span>
+
+      </div>
+
+    </section>
+
+    <!-- ===================================== -->
+    <!-- SEARCH AND FILTER -->
+    <!-- ===================================== -->
+
+    <section class="browse-section animate-up delay-3">
+
+      <div class="section-title">
+
+        <div>
+          <span class="eyebrow">EXPLORE REPORTS</span>
+          <h2>Find your item</h2>
+        </div>
+
+      </div>
+
+      <div class="search-wrapper">
+
+        <ion-searchbar
+          placeholder="Search items or locations..."
+          [debounce]="200"
+          (ionInput)="onSearch($event)">
+        </ion-searchbar>
+
+      </div>
+
+      <div class="filter-group">
+
+        <button
+          type="button"
+          class="filter-button"
+          [class.active]="selectedFilter === 'all'"
+          (click)="setFilter('all')">
+
+          All Items
+
+        </button>
+
+        <button
+          type="button"
+          class="filter-button"
+          [class.active]="selectedFilter === 'lost'"
+          (click)="setFilter('lost')">
+
+          Lost
+
+        </button>
+
+        <button
+          type="button"
+          class="filter-button"
+          [class.active]="selectedFilter === 'found'"
+          (click)="setFilter('found')">
+
+          Found
+
+        </button>
+
+      </div>
+
+    </section>
+
+    <!-- ===================================== -->
+    <!-- LOADING AND ERRORS -->
+    <!-- ===================================== -->
+
+    <p
+      class="live-status"
+      *ngIf="loadingReports">
+
+      Loading shared reports...
+
+    </p>
+
+    <div
+      class="feed-error"
+      *ngIf="feedError">
+
+      {{ feedError }}
+
+      <button
+        type="button"
+        (click)="loadItems()">
+
+        Retry
+
+      </button>
+
+    </div>
+
+    <!-- ===================================== -->
+    <!-- RECENT REPORTS -->
+    <!-- ===================================== -->
+
+    <section class="reports-section animate-up delay-4">
+
+      <div class="reports-heading">
+
+        <h2>Recent Reports</h2>
+
+        <span class="report-count">
+
+          {{ filteredItems.length }} items
+
+        </span>
+
+      </div>
+
+      <div class="reports-list">
+
+        <button
+          *ngFor="
+            let item of filteredItems;
+            let i = index
+          "
+          type="button"
+          class="item-card"
+          [style.animation-delay]="(i * 75) + 'ms'"
+          (click)="openItem(item)">
+
+          <!-- ITEM IMAGE -->
+
+          <div
+            class="item-image"
+            [class.lost-image]="item.type === 'lost'"
+            [class.found-image]="item.type === 'found'">
+
+            <!-- ================================= -->
+            <!-- BLURRED RECENT REPORT IMAGE -->
+            <!-- ================================= -->
+
+            <img
+              *ngIf="item.photo; else itemEmoji"
+              [src]="item.photo"
+              [alt]="item.name"
+              class="item-photo"
+              style="
+                filter: blur(10px);
+                transform: scale(1.03);
+                user-select: none;
+              ">
+
+            <ng-template #itemEmoji>
+
+              <span>
+                {{ item.emoji }}
+              </span>
+
+            </ng-template>
+
+          </div>
+
+          <!-- ITEM INFORMATION -->
+
+          <div class="item-content">
+
+            <div class="item-top">
+
+              <span
+                class="status-pill"
+                [class.status-lost]="item.type === 'lost'"
+                [class.status-found]="item.type === 'found'">
+
+                {{ item.type | titlecase }}
+
+              </span>
+
+              <span class="item-date">
+
+                {{ item.date }}
+
+              </span>
+
+            </div>
+
+            <h3>
+              {{ item.name }}
+            </h3>
+
+            <p class="category">
+              {{ item.category }}
+            </p>
+
+            <div class="item-location">
+
+              <ion-icon
+                name="location-outline">
+              </ion-icon>
+
+              {{ item.location }}
+
+            </div>
+
+          </div>
+
+          <ion-icon
+            class="item-arrow"
+            name="chevron-forward-outline">
+          </ion-icon>
+
+        </button>
+
+      </div>
+
+      <!-- EMPTY REPORTS -->
+
+      <div
+        class="empty-state"
+        *ngIf="
+          !loadingReports &&
+          !feedError &&
+          filteredItems.length === 0
+        ">
+
+        <div class="empty-emoji">
+          🔎
+        </div>
+
+        <h3>No matching items</h3>
+
+        <p>
+          Try another search or filter.
+        </p>
+
+      </div>
+
+    </section>
+
+    <!-- FOOTER -->
+
+    <footer class="home-footer">
+
+      Made for a connected campus community.
+
+    </footer>
+
+  </main>
+
+</ion-content>
+
+<!-- ===================================== -->
+<!-- ITEM DETAILS MODAL -->
+<!-- ===================================== -->
+
+<ion-modal
+  #itemDetailsModal
+  [isOpen]="selectedItem !== null"
+  (didDismiss)="closeItemModal()"
+  style="
+    --width: min(94vw, 540px);
+    --height: min(90dvh, 820px);
+    --border-radius: 24px;
+    --box-shadow: 0 22px 60px rgba(15,42,67,0.2);
+  ">
+
+  <ng-template>
+
+    <div
+      class="detail-modal"
+      *ngIf="selectedItem as item">
+
+      <!-- MODAL HEADER -->
+
+      <div class="modal-header">
+
+        <div class="modal-title-group">
+
+          <span class="modal-eyebrow">
+            FINDBACK REPORT
+          </span>
+
+          <h2>Item Details</h2>
+
+        </div>
+
+        <button
+          type="button"
+          class="modal-close"
+          aria-label="Close item details"
+          (click)="closeItemModal()">
+
+          <ion-icon
+            name="close-outline">
+          </ion-icon>
+
+        </button>
+
+      </div>
+
+      <!-- SCROLLABLE MODAL CONTENT -->
+
+      <div class="modal-body">
+
+        <!-- ================================= -->
+        <!-- ITEM DETAILS IMAGE: BLURRED -->
+        <!-- ================================= -->
+
+        <div
+          class="modal-photo-container"
+          [class.modal-photo-lost]="item.type === 'lost'"
+          [class.modal-photo-found]="item.type === 'found'"
+          style="
+            overflow: hidden;
+          ">
+
+          <!-- BLURRED PHOTO -->
+
+          <img
+            *ngIf="item.photo; else modalEmoji"
+            [src]="item.photo"
+            [alt]="item.name"
+            class="modal-photo"
+            style="
+              filter: blur(10px);
+              transform: scale(1.03);
+              user-select: none;
+              pointer-events: none;
+            ">
+
+          <!-- DEFAULT EMOJI -->
+
+          <ng-template #modalEmoji>
+
+            <span class="modal-emoji">
+
+              {{ item.emoji }}
+
+            </span>
+
+          </ng-template>
+
+          <!-- LOST / FOUND STATUS -->
+
+          <span
+            class="modal-status"
+            [class.modal-status-lost]="item.type === 'lost'"
+            [class.modal-status-found]="item.type === 'found'">
+
+            <span class="status-dot"></span>
+
+            {{ item.type | uppercase }} ITEM
+
+          </span>
+
+        </div>
+
+        <!-- ================================= -->
+        <!-- ITEM NAME -->
+        <!-- ================================= -->
+
+        <div class="modal-item-intro">
+
+          <h2>
+            {{ item.name }}
+          </h2>
+
+          <p>
+            {{ item.category }}
+          </p>
+
+        </div>
+
+        <!-- ================================= -->
+        <!-- ITEM INFORMATION -->
+        <!-- ================================= -->
+
+        <div class="detail-section">
+
+          <h3>
+            Item Information
+          </h3>
+
+          <div class="detail-info-card">
+
+            <!-- LOCATION -->
+
+            <div class="detail-info-row">
+
+              <div class="detail-icon blue-bg">
+
+                <ion-icon
+                  name="location-outline">
+                </ion-icon>
+
+              </div>
+
+              <div class="detail-info-text">
+
+                <span>
+
+                  {{
+                    item.type === 'lost'
+                      ? 'Last Seen Location'
+                      : 'Found Location'
+                  }}
+
+                </span>
+
+                <strong>
+                  {{ item.location }}
+                </strong>
+
+              </div>
+
+            </div>
+
+            <div class="detail-divider"></div>
+
+            <!-- DATE -->
+
+            <div class="detail-info-row">
+
+              <div class="detail-icon green-bg">
+
+                <ion-icon
+                  name="calendar-outline">
+                </ion-icon>
+
+              </div>
+
+              <div class="detail-info-text">
+
+                <span>
+                  Date Reported / Item Date
+                </span>
+
+                <strong>
+                  {{ item.date }}
+                </strong>
+
+              </div>
+
+            </div>
+
+            <div class="detail-divider"></div>
+
+            <!-- REPORTER -->
+
+            <div class="detail-info-row">
+
+              <div class="detail-icon blue-bg">
+
+                <ion-icon
+                  name="person-outline">
+                </ion-icon>
+
+              </div>
+
+              <div class="detail-info-text">
+
+                <span>
+
+                  {{
+                    item.type === 'lost'
+                      ? 'Reported By'
+                      : 'Found By'
+                  }}
+
+                </span>
+
+                <strong>
+
+                  {{
+                    item.fullName ||
+                    'Not provided'
+                  }}
+
+                </strong>
+
+              </div>
+
+            </div>
+
+            <div class="detail-divider"></div>
+
+            <!-- PICKUP / MEETUP LOCATION -->
+
+            <div class="detail-info-row">
+
+              <div class="detail-icon green-bg">
+
+                <ion-icon
+                  name="cube-outline">
+                </ion-icon>
+
+              </div>
+
+              <div class="detail-info-text">
+
+                <span>
+
+                  {{
+                    item.type === 'found'
+                      ? 'Pickup Location'
+                      : 'Preferred Return / Meetup Location'
+                  }}
+
+                </span>
+
+                <strong>
+
+                  {{
+                    item.pickupLocation ||
+                    'Not provided'
+                  }}
+
+                </strong>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- ================================= -->
+        <!-- ITEM DESCRIPTION -->
+        <!-- ================================= -->
+
+        <div class="detail-section">
+
+          <h3>Item Description</h3>
+
+          <div class="description-card">
+
+            <p>
+
+              {{
+                item.description ||
+                'No additional description provided.'
+              }}
+
+            </p>
+
+          </div>
+
+        </div>
+
+        <!-- ================================= -->
+        <!-- REQUEST TO CLAIM -->
+        <!-- FOUND ITEMS ONLY -->
+        <!-- ================================= -->
+
+        <div
+          class="detail-section"
+          *ngIf="
+            item.item_type === 'found' &&
+            item.status === 'active' &&
+            item.owner_id !== myUserId
+          "
+          style="
+            padding: 16px;
+            margin-bottom: 14px;
+            border-radius: 16px;
+            background: #effbf5;
+            border: 1px solid #c9eedd;
+          ">
+
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              margin-bottom: 8px;
+            ">
+
+            <ion-icon
+              name="shield-checkmark-outline"
+              style="
+                font-size: 26px;
+                color: #10885d;
+              ">
+            </ion-icon>
+
+            <h3
+              style="
+                margin: 0;
+                color: #0f694c;
+                font-size: 16px;
+              ">
+
+              Is this your lost item?
+
+            </h3>
+
+          </div>
+
+          <p
+            style="
+              font-size: 12px;
+              line-height: 1.6;
+              color: #4e7565;
+              margin: 0 0 12px;
+            ">
+
+            Submit a secure claim request with
+            private ownership details.
+
+            The student who found the item
+            can review your request.
+
+          </p>
+
+          <button
+            type="button"
+            class="claim-request-button"
+            style="
+              margin-top: 0;
+              background: #118b62;
+              color: #ffffff;
+              border-color: #118b62;
+            "
+            [disabled]="openingChat"
+            (click)="requestClaimFromItem()">
+
+            <ion-icon
+              name="shield-checkmark-outline">
+            </ion-icon>
+
+            Request to Claim This Item
+
+          </button>
+
+        </div>
+
+        <!-- ================================= -->
+        <!-- LOST ITEM: BROWSE FOUND REPORTS -->
+        <!-- ================================= -->
+
+        <div
+          class="detail-section"
+          *ngIf="
+            item.item_type === 'lost' &&
+            item.status === 'active'
+          "
+          style="
+            padding: 14px 16px;
+            margin-bottom: 14px;
+            border-radius: 15px;
+            background: #eff6ff;
+            border: 1px solid #d9e9fb;
+          ">
+
+          <h3
+            style="
+              color: #185c9c;
+              font-size: 14px;
+              margin: 0 0 7px;
+            ">
+
+            Looking for your lost item?
+
+          </h3>
+
+          <p
+            style="
+              color: #587a97;
+              font-size: 12px;
+              line-height: 1.6;
+              margin: 0 0 12px;
+            ">
+
+            Request a claim from a Found report
+            posted by another student, not
+            from your own Lost report.
+
+          </p>
+
+          <button
+            type="button"
+            class="claim-request-button"
+            style="
+              margin-top: 0;
+              background: #e1efff;
+              color: #1769d2;
+              border-color: #c3dffd;
+            "
+            (click)="setFilter('found'); closeItemModal()">
+
+            <ion-icon
+              name="search-outline">
+            </ion-icon>
+
+            Browse Found Reports
+
+          </button>
+
+        </div>
+
+        <!-- ================================= -->
+        <!-- PRIVATE CHAT -->
+        <!-- ================================= -->
+
+        <div class="detail-section message-section">
+
+          <div class="message-heading">
+
+            <div class="chat-heading-icon">
+
+              <ion-icon
+                name="chatbubble-ellipses-outline">
+              </ion-icon>
+
+            </div>
+
+            <div>
+
+              <h3>
+
+                {{
+                  item.item_type === 'found'
+                    ? 'Message the Finder'
+                    : 'Message the Reporter'
+                }}
+
+              </h3>
+
+              <p>
+                Discuss this item privately
+                in FindBack Messages.
+              </p>
+
+            </div>
+
+          </div>
+
+          <p class="safe-chat-note">
+
+            Messages are visible only to you
+            and the other student.
+
+            For item returns, choose a
+            supervised campus location.
+
+            Avoid sharing passwords,
+            private addresses, or
+            student ID numbers.
+
+          </p>
+
+          <button
+            type="button"
+            class="contact-action"
+            [disabled]="
+              openingChat ||
+              item.owner_id === myUserId ||
+              item.status !== 'active'
+            "
+            (click)="messageOwner()">
+
+            <ion-icon
+              name="chatbubbles-outline">
+            </ion-icon>
+
+            {{
+              item.owner_id === myUserId
+
+                ? 'Your report — check Messages'
+
+                : item.status !== 'active'
+
+                  ? 'Item already returned'
+
+                  : openingChat
+
+                    ? 'Opening conversation...'
+
+                    : 'Open Private Chat'
+            }}
+
+          </button>
+
+          <!-- CHAT ERROR -->
+
+          <p
+            class="message-feedback"
+            *ngIf="messageStatus">
+
+            {{ messageStatus }}
+
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </ng-template>
+
+</ion-modal>
+
+<!-- ===================================== -->
+<!-- SIMILAR ITEM NOTIFICATIONS MODAL -->
+<!-- ===================================== -->
+
+<ion-modal
+  #matchesModal
+  [isOpen]="matchNotificationsOpen"
+  (didDismiss)="matchNotificationsOpen = false"
+  style="
+    --width: min(94vw, 510px);
+    --height: min(85dvh, 740px);
+    --border-radius: 23px;
+    --box-shadow: 0 22px 65px rgba(15,42,67,.20);
+  ">
+
+  <ng-template>
+
+    <div class="matches-shell">
+
+      <!-- NOTIFICATION HEADER -->
+
+      <header class="matches-header">
+
+        <div class="matches-header-icon">
+
+          <ion-icon
+            name="notifications-outline">
+          </ion-icon>
+
+        </div>
+
+        <div class="matches-header-text">
+
+          <h2>
+            Possible Item Matches
+          </h2>
+
+          <p>
+
+            {{ unreadMatchCount }} unread ·
+            Similar Lost &amp; Found reports
+
+          </p>
+
+        </div>
+
+        <button
+          type="button"
+          class="matches-close"
+          aria-label="Close notifications"
+          (click)="closeMatchNotifications()">
+
+          <ion-icon
+            name="close-outline">
+          </ion-icon>
+
+        </button>
+
+      </header>
+
+      <!-- NOTIFICATION BODY -->
+
+      <div class="matches-body">
+
+        <p class="matches-explain">
+
+          These Found items may be related
+          to items you reported lost.
+
+          Matching is based on item name
+          and category, so please verify
+          the details before contacting
+          the finder.
+
+        </p>
+
+        <!-- LOADING -->
+
+        <p
+          *ngIf="matchLoading"
+          class="matches-loading">
+
+          Checking possible matches...
+
+        </p>
+
+        <!-- ERROR -->
+
+        <p
+          *ngIf="matchError"
+          class="matches-error"
+          role="alert">
+
+          {{ matchError }}
+
+        </p>
+
+        <!-- EMPTY NOTIFICATIONS -->
+
+        <div
+          *ngIf="
+            !matchLoading &&
+            !matchError &&
+            matchNotifications.length === 0
+          "
+          class="matches-empty">
+
+          <ion-icon
+            name="checkmark-circle-outline">
+          </ion-icon>
+
+          <h3>
+            No possible matches yet
+          </h3>
+
+          <p>
+
+            You'll see alerts here when
+            another student reports a
+            Found item that looks similar
+            to your Lost item.
+
+          </p>
+
+        </div>
+
+        <!-- ================================= -->
+        <!-- NOTIFICATION LIST -->
+        <!-- ================================= -->
+
+        <button
+          *ngFor="let match of matchNotifications"
+          type="button"
+          class="match-card"
+          [class.unread]="!match.read_at"
+          [disabled]="openingMatchedReport"
+          (click)="viewMatchedFound(match)">
+
+          <div class="match-symbol">
+
+            <ion-icon
+              name="search-outline">
+            </ion-icon>
+
+          </div>
+
+          <div class="match-content">
+
+            <strong>
+
+              Possible match:
+              {{ match.found_item_name }}
+
+            </strong>
+
+            <p>
+
+              Your Lost report:
+              {{ match.lost_item_name }}
+
+            </p>
+
+            <p
+              *ngIf="match.found_status !== 'active'">
+
+              This Found report is no longer active.
+
+            </p>
+
+            <small>
+
+              {{ formatMatchDate(match.created_at) }}
+
+              · Tap to view Found item
+
+            </small>
+
+          </div>
+
+          <span
+            *ngIf="!match.read_at"
+            class="match-unread-dot"
+            aria-label="Unread">
+          </span>
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </ng-template>
+
+</ion-modal>

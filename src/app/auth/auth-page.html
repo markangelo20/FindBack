@@ -1,0 +1,431 @@
+
+<ion-content [fullscreen]="true">
+
+  <main class="auth-page">
+
+    <!-- ANIMATED BACKGROUND -->
+
+    <div class="glow glow-blue"></div>
+    <div class="glow glow-green"></div>
+
+    <!-- FINDBACK BRAND -->
+
+    <section class="brand-section">
+
+      <div class="brand-logo">
+        <ion-icon name="shield-checkmark-outline">
+        </ion-icon>
+      </div>
+
+      <h1>
+        find<span>back</span>.
+      </h1>
+
+      <p>Campus Lost &amp; Found</p>
+
+      <div class="school-pill">
+
+        <ion-icon name="school-outline">
+        </ion-icon>
+
+        <span>
+          NEUST &amp; Colegio de San Leonardo
+        </span>
+
+      </div>
+    </section>
+
+    <!-- AUTHENTICATION CARD -->
+
+    <section class="auth-card">
+
+      <div class="heading">
+
+        <span class="eyebrow">
+          WELCOME TO FINDBACK
+        </span>
+
+        <h2>
+          {{
+            mode === 'login'
+              ? 'Welcome back!'
+              : 'Create an account'
+          }}
+        </h2>
+
+        <p>
+          {{
+            mode === 'login'
+              ? 'Sign in to your FindBack account to continue.'
+              : 'Create your account with one-time School ID screening.'
+          }}
+        </p>
+
+      </div>
+
+      <!-- LOGIN / REGISTER TABS -->
+
+      <div
+        class="auth-tabs"
+        role="group"
+        aria-label="Authentication mode">
+
+        <button
+          type="button"
+          [class.active]="mode === 'login'"
+          [attr.aria-pressed]="mode === 'login'"
+          [disabled]="loading"
+          (click)="setMode('login')">
+
+          Login
+
+        </button>
+
+        <button
+          type="button"
+          [class.active]="mode === 'register'"
+          [attr.aria-pressed]="mode === 'register'"
+          [disabled]="loading"
+          (click)="setMode('register')">
+
+          Register
+
+        </button>
+
+      </div>
+
+      <!-- AUTH FORM -->
+
+      <form
+        (ngSubmit)="submit()"
+        novalidate>
+
+        <!-- FIRST NAME -->
+
+        <div
+          class="form-group fade-in"
+          *ngIf="mode === 'register'">
+
+          <label for="firstName">
+            First Name
+          </label>
+
+          <div class="input-box">
+
+            <ion-icon name="person-outline">
+            </ion-icon>
+
+            <input
+              id="firstName"
+              type="text"
+              name="firstName"
+              [(ngModel)]="firstName"
+              placeholder="Enter your first name"
+              autocomplete="given-name"
+              maxlength="50"
+              [disabled]="loading"
+              required>
+
+          </div>
+
+          <small *ngIf="!firstName.trim()">
+            Letters only. Numbers are not allowed.
+          </small>
+
+          <small
+            *ngIf="firstName.trim()"
+            [style.color]="
+              isFirstNameValid
+                ? '#148f62'
+                : '#b83f39'
+            ">
+
+            {{
+              isFirstNameValid
+                ? '✓ Valid First Name'
+                : firstNameError
+            }}
+
+          </small>
+
+        </div>
+
+        <!-- EMAIL -->
+
+        <div class="form-group">
+
+          <label for="email">
+            Email Address
+          </label>
+
+          <div class="input-box">
+
+            <ion-icon name="mail-outline">
+            </ion-icon>
+
+            <input
+              id="email"
+              type="email"
+              name="email"
+              [(ngModel)]="email"
+              placeholder="Enter your email address"
+              autocomplete="email"
+              [disabled]="loading"
+              required>
+
+          </div>
+
+        </div>
+
+        <!-- PASSWORD -->
+
+        <div class="form-group">
+
+          <label for="password">
+            Password
+          </label>
+
+          <div class="input-box">
+
+            <ion-icon name="lock-closed-outline">
+            </ion-icon>
+
+            <input
+              id="password"
+              name="password"
+              [type]="
+                showPassword
+                  ? 'text'
+                  : 'password'
+              "
+              [(ngModel)]="password"
+              placeholder="Enter your password"
+              [disabled]="loading"
+              [attr.autocomplete]="
+                mode === 'login'
+                  ? 'current-password'
+                  : 'new-password'
+              "
+              required>
+
+            <button
+              type="button"
+              class="eye-button"
+              [disabled]="loading"
+              [attr.aria-label]="
+                showPassword
+                  ? 'Hide password'
+                  : 'Show password'
+              "
+              (click)="togglePassword()">
+
+              <ion-icon
+                [name]="
+                  showPassword
+                    ? 'eye-off-outline'
+                    : 'eye-outline'
+                ">
+              </ion-icon>
+
+            </button>
+
+          </div>
+
+          <!-- PASSWORD REQUIREMENTS -->
+
+          <div
+            *ngIf="mode === 'register'"
+            class="fade-in"
+            aria-label="Password requirements">
+
+            <small
+              *ngFor="
+                let requirement of passwordRequirements
+              "
+              [style.color]="
+                requirement.test(password)
+                  ? '#148f62'
+                  : '#8193a6'
+              ">
+
+              {{
+                requirement.test(password)
+                  ? '✓'
+                  : '○'
+              }}
+
+              {{ requirement.label }}
+
+            </small>
+
+          </div>
+
+        </div>
+
+        <!-- CONFIRM PASSWORD -->
+
+        <div
+          class="form-group fade-in"
+          *ngIf="mode === 'register'">
+
+          <label for="confirmPassword">
+            Confirm Password
+          </label>
+
+          <div class="input-box">
+
+            <ion-icon name="lock-closed-outline">
+            </ion-icon>
+
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              [type]="
+                showPassword
+                  ? 'text'
+                  : 'password'
+              "
+              [(ngModel)]="confirmPassword"
+              placeholder="Confirm your password"
+              autocomplete="new-password"
+              [disabled]="loading"
+              required>
+
+          </div>
+
+          <small
+            *ngIf="confirmPassword.length > 0"
+            [style.color]="
+              doPasswordsMatch
+                ? '#148f62'
+                : '#b83f39'
+            ">
+
+            {{
+              doPasswordsMatch
+                ? '✓ Passwords match'
+                : 'Passwords do not match.'
+            }}
+
+          </small>
+
+        </div>
+
+        <!-- FEEDBACK -->
+
+        <div
+          class="feedback"
+          role="status"
+          aria-live="polite"
+          *ngIf="feedback"
+          [class.success]="
+            feedbackType === 'success'
+          "
+          [class.error]="
+            feedbackType === 'error'
+          ">
+
+          <ion-icon
+            [name]="
+              feedbackType === 'success'
+                ? 'checkmark-circle-outline'
+                : 'alert-circle-outline'
+            ">
+          </ion-icon>
+
+          <span>{{ feedback }}</span>
+
+        </div>
+
+        <!-- SUBMIT -->
+
+        <button
+          type="submit"
+          class="submit-button"
+          [disabled]="loading">
+
+          <span>
+            {{
+              loading
+                ? 'Please wait...'
+                : mode === 'login'
+                  ? 'Login to FindBack'
+                  : 'Create Account'
+            }}
+          </span>
+
+          <ion-icon name="arrow-forward-outline">
+          </ion-icon>
+
+        </button>
+
+      </form>
+
+      <!-- REGISTRATION-ONLY SCANNER NOTICE -->
+
+      <div
+        class="id-note"
+        *ngIf="mode === 'register'">
+
+        <div class="note-icon">
+
+          <ion-icon name="scan-outline">
+          </ion-icon>
+
+        </div>
+
+        <div>
+
+          <strong>
+            One-Time School ID Screening
+          </strong>
+
+          <p>
+            After you tap Create Account,
+            your camera will scan your School ID.
+
+            Review the recognized name,
+            student number and school
+            before saving.
+
+            You won't need to scan again
+            when logging in.
+          </p>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- FOOTER -->
+
+    <p class="footer">
+      FindBack — Connecting Campus Communities
+    </p>
+
+  </main>
+
+  <!-- REGISTRATION LOADING SCREEN -->
+
+  <div
+    class="registration-loading"
+    *ngIf="
+      loading &&
+      mode === 'register'
+    "
+    role="status"
+    aria-live="polite">
+
+    <div class="loader"></div>
+
+    <h3>Preparing ID Scanner...</h3>
+
+    <p>
+      Opening your one-time
+      registration screening.
+    </p>
+
+  </div>
+
+</ion-content>

@@ -1,0 +1,7 @@
+{
+  "name": "LOST AND FOUND NEUST SLOC AND CDSL",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

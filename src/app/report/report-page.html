@@ -1,0 +1,558 @@
+
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+
+    <div class="topbar">
+
+      <button
+        type="button"
+        class="back-button"
+        aria-label="Go back"
+        (click)="goBack()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </button>
+
+      <div class="topbar-title">
+        <h2>New Report</h2>
+        <p>FindBack Lost & Found</p>
+      </div>
+
+      <div class="topbar-icon">
+        <ion-icon
+          name="shield-checkmark-outline">
+        </ion-icon>
+      </div>
+
+    </div>
+
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <main
+    class="report-container"
+    [class.lost-theme]="isLost"
+    [class.found-theme]="!isLost">
+
+    <!-- HERO -->
+
+    <section class="report-hero animate-up">
+
+      <div class="hero-circle"></div>
+
+      <div class="hero-emoji">
+        {{ isLost ? '🔎' : '📦' }}
+      </div>
+
+      <span class="hero-badge">
+        {{
+          isLost
+          ? 'LOST ITEM REPORT'
+          : 'FOUND ITEM REPORT'
+        }}
+      </span>
+
+      <h1>
+        {{
+          isLost
+          ? 'Lost something?'
+          : 'Found something?'
+        }}
+      </h1>
+
+      <p>
+        {{
+          isLost
+          ? 'Tell us about your missing item so others can help you find it.'
+          : 'Help someone recover their belongings by reporting what you found.'
+        }}
+      </p>
+
+    </section>
+
+    <form
+      class="report-form"
+      (ngSubmit)="submitReport()"
+      novalidate>
+
+      <!-- ================================= -->
+      <!-- STEP 01: ITEM PHOTO -->
+      <!-- ================================= -->
+
+      <section class="form-section animate-up delay-1">
+
+        <div class="section-heading">
+          <span class="step-number">01</span>
+
+          <div>
+            <h2>Item Photo</h2>
+            <p>Take a photo or choose from gallery</p>
+          </div>
+        </div>
+
+        <div class="upload-card">
+
+          <ng-container
+            *ngIf="photoPreview; else emptyUpload">
+
+            <div class="preview-wrapper">
+
+              <img
+                [src]="photoPreview"
+                class="preview-image"
+                alt="Selected item photo">
+
+              <button
+                type="button"
+                class="remove-photo"
+                aria-label="Remove photo"
+                (click)="removePhoto()">
+                <ion-icon name="close-outline"></ion-icon>
+              </button>
+
+            </div>
+
+            <p class="photo-name">
+              {{ photoName }}
+            </p>
+
+          </ng-container>
+
+          <ng-template #emptyUpload>
+
+            <div class="upload-placeholder">
+
+              <div class="upload-icon">
+                <ion-icon
+                  name="cloud-upload-outline">
+                </ion-icon>
+              </div>
+
+              <h3>
+                {{
+                  processingPhoto
+                  ? 'Processing Photo...'
+                  : 'Add an Item Photo'
+                }}
+              </h3>
+
+              <p>
+                A clear photo helps people
+                recognize the item.
+              </p>
+
+              <span>Camera or Photo Gallery</span>
+
+            </div>
+
+          </ng-template>
+
+          <div class="upload-actions">
+
+            <button
+              type="button"
+              class="camera-button"
+              [disabled]="processingPhoto || saving"
+              (click)="takePhoto()">
+
+              <ion-icon name="camera-outline"></ion-icon>
+              Take Photo
+
+            </button>
+
+            <button
+              type="button"
+              class="gallery-button"
+              [disabled]="processingPhoto || saving"
+              (click)="chooseFromGallery()">
+
+              <ion-icon name="images-outline"></ion-icon>
+              Gallery
+
+            </button>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ================================= -->
+      <!-- STEP 02: REPORTER AND ITEM DETAILS -->
+      <!-- ================================= -->
+
+      <section class="form-section animate-up delay-2">
+
+        <div class="section-heading">
+          <span class="step-number">02</span>
+
+          <div>
+            <h2>Reporter & Item Details</h2>
+            <p>Tell us who reported the item</p>
+          </div>
+        </div>
+
+        <div class="form-card">
+
+          <!-- FULL NAME -->
+
+          <div class="field-group">
+
+            <label for="fullName">
+              {{
+                isLost
+                ? 'Full Name of Owner'
+                : 'Full Name of Finder'
+              }}
+              <span class="required">*</span>
+            </label>
+
+            <div class="input-with-icon">
+
+              <ion-icon name="person-outline"></ion-icon>
+
+              <input
+                id="fullName"
+                type="text"
+                name="fullName"
+                [(ngModel)]="report.fullName"
+                placeholder="Enter your full name"
+                autocomplete="name"
+                maxlength="100"
+                required>
+
+            </div>
+
+            <small class="hint-text">
+              This name will appear in the report details.
+            </small>
+
+            <small
+              class="error-text"
+              *ngIf="
+                attempted &&
+                report.fullName.trim().length < 3
+              ">
+              Please enter your full name.
+            </small>
+
+          </div>
+
+          <!-- ITEM NAME -->
+
+          <div class="field-group">
+
+            <label for="itemName">
+              Item Name
+              <span class="required">*</span>
+            </label>
+
+            <input
+              id="itemName"
+              type="text"
+              name="itemName"
+              [(ngModel)]="report.name"
+              placeholder="e.g. Black Wallet"
+              maxlength="100"
+              autocomplete="off"
+              required>
+
+            <small
+              class="error-text"
+              *ngIf="
+                attempted &&
+                report.name.trim().length < 3
+              ">
+              Enter an item name with at least
+              3 characters.
+            </small>
+
+          </div>
+
+          <!-- ITEM CATEGORY -->
+
+          <div class="field-group">
+
+            <label for="category">
+              Category
+              <span class="required">*</span>
+            </label>
+
+            <div class="select-wrapper">
+
+              <select
+                id="category"
+                name="category"
+                [(ngModel)]="report.category"
+                required>
+
+                <option value="" disabled>
+                  Select item category
+                </option>
+
+                <option
+                  *ngFor="let category of categories"
+                  [value]="category">
+                  {{ category }}
+                </option>
+
+              </select>
+
+            </div>
+
+            <small
+              class="error-text"
+              *ngIf="attempted && !report.category">
+              Please select a category.
+            </small>
+
+          </div>
+
+          <!-- DESCRIPTION -->
+
+          <div class="field-group">
+
+            <label for="description">
+              Item Description
+              <span class="required">*</span>
+            </label>
+
+            <textarea
+              id="description"
+              name="description"
+              [(ngModel)]="report.description"
+              rows="4"
+              maxlength="500"
+              [placeholder]="isLost
+                ? 'Describe the missing item, including its color and identifying features...'
+                : 'Describe the item you found and its appearance...'"
+              required>
+            </textarea>
+
+            <div class="field-footer">
+
+              <small
+                class="error-text"
+                *ngIf="
+                  attempted &&
+                  report.description.trim().length < 10
+                ">
+                Enter at least 10 characters.
+              </small>
+
+              <span class="char-count">
+                {{ report.description.length }}/500
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ================================= -->
+      <!-- STEP 03: LOCATION AND PICKUP -->
+      <!-- ================================= -->
+
+      <section class="form-section animate-up delay-3">
+
+        <div class="section-heading">
+          <span class="step-number">03</span>
+
+          <div>
+            <h2>Location & Pickup Details</h2>
+            <p>Where can the item be found or returned?</p>
+          </div>
+        </div>
+
+        <div class="form-card">
+
+          <!-- LOST / FOUND LOCATION -->
+
+          <div class="field-group">
+
+            <label for="location">
+              {{
+                isLost
+                ? 'Last Seen Location'
+                : 'Found Location'
+              }}
+              <span class="required">*</span>
+            </label>
+
+            <div class="input-with-icon">
+
+              <ion-icon name="location-outline"></ion-icon>
+
+              <input
+                id="location"
+                type="text"
+                name="location"
+                [(ngModel)]="report.location"
+                placeholder="e.g. Building 1, Room 101"
+                maxlength="150"
+                required>
+
+            </div>
+
+            <small class="hint-text">
+              Enter the campus location where the
+              item was lost or found.
+            </small>
+
+            <small
+              class="error-text"
+              *ngIf="
+                attempted &&
+                report.location.trim().length < 3
+              ">
+              Please enter a valid location.
+            </small>
+
+          </div>
+
+          <!-- PICKUP / MEETUP LOCATION -->
+
+          <div class="field-group">
+
+            <label for="pickupLocation">
+              {{
+                isLost
+                ? 'Preferred Return / Meetup Location'
+                : 'Item Pickup Location'
+              }}
+              <span class="required">*</span>
+            </label>
+
+            <div class="input-with-icon">
+
+              <ion-icon name="cube-outline"></ion-icon>
+
+              <input
+                id="pickupLocation"
+                type="text"
+                name="pickupLocation"
+                [(ngModel)]="report.pickupLocation"
+                [placeholder]="isLost
+                  ? 'e.g. Building 1 Lobby'
+                  : 'e.g. Building 2 Guard Area'"
+                maxlength="150"
+                required>
+
+            </div>
+
+            <small class="hint-text">
+              {{
+                isLost
+                ? 'Choose a public campus location where the item could be returned.'
+                : 'Where can the owner safely claim the found item?'
+              }}
+            </small>
+
+            <small
+              class="error-text"
+              *ngIf="
+                attempted &&
+                report.pickupLocation.trim().length < 3
+              ">
+              Please enter a pickup or meetup location.
+            </small>
+
+          </div>
+
+          <!-- DATE -->
+
+          <div class="field-group">
+
+            <label for="date">
+              {{ isLost ? 'Date Lost' : 'Date Found' }}
+              <span class="required">*</span>
+            </label>
+
+            <div class="input-with-icon">
+
+              <ion-icon name="calendar-outline"></ion-icon>
+
+              <input
+                id="date"
+                type="date"
+                name="date"
+                [(ngModel)]="report.date"
+                [max]="today"
+                required>
+
+            </div>
+
+            <small
+              class="error-text"
+              *ngIf="
+                attempted &&
+                (!report.date || report.date > today)
+              ">
+              Please enter a valid date.
+            </small>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- PRIVACY REMINDER -->
+
+      <div class="privacy-note animate-up delay-4">
+
+        <ion-icon name="information-circle-outline"></ion-icon>
+
+        <p>
+          Use a safe public campus location for
+          item pickup or return. Avoid entering
+          private addresses or personal contact
+          information in the description.
+        </p>
+
+      </div>
+
+      <!-- SUBMIT -->
+
+      <div class="submit-container animate-up delay-4">
+
+        <button
+          type="submit"
+          class="submit-button"
+          [disabled]="saving || processingPhoto">
+
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+
+          <span>
+            {{
+              saving
+              ? 'Saving Report...'
+              : 'Save ' +
+                (isLost ? 'Lost' : 'Found') +
+                ' Report'
+            }}
+          </span>
+
+          <ion-icon
+            name="arrow-forward-outline"
+            class="submit-arrow">
+          </ion-icon>
+
+        </button>
+
+        <p class="submit-note">
+          Demo mode — reports are saved on
+          this device only.
+        </p>
+
+      </div>
+
+    </form>
+
+  </main>
+
+</ion-content>

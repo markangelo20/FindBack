@@ -6,33 +6,20 @@ import {
   Component,
   OnDestroy
 } from '@angular/core';
-
 import { Router } from '@angular/router';
-
-import {
-  CameraPreview
-} from '@capacitor-community/camera-preview';
-
+import { CameraPreview } from '@capacitor-community/camera-preview';
 import { Capacitor } from '@capacitor/core';
-
-import {
-  Directory,
-  Filesystem
-} from '@capacitor/filesystem';
-
+import { Directory, Filesystem } from '@capacitor/filesystem';
 import {
   Script,
   TextRecognition
 } from '@capacitor-mlkit/text-recognition';
-
 import {
   IonContent,
   IonIcon,
   IonModal
 } from '@ionic/angular';
-
 import { addIcons } from 'ionicons';
-
 import {
   arrowBackOutline,
   arrowForwardOutline,
@@ -41,9 +28,7 @@ import {
   scanOutline,
   shieldCheckmarkOutline
 } from 'ionicons/icons';
-
 import { AuthService } from '../services/auth.service';
-
 import {
   RegistrationDraftService
 } from '../services/registration-draft.service';
@@ -68,7 +53,6 @@ interface IdDetails {
 @Component({
   selector: 'app-registration-scan',
   standalone: true,
-
   imports: [
     CommonModule,
     IonContent,
@@ -86,10 +70,7 @@ interface IdDetails {
 
       <main class="scan-page">
 
-        <!-- HEADER -->
-
         <header class="header">
-
           <button
             type="button"
             aria-label="Cancel registration"
@@ -99,25 +80,16 @@ interface IdDetails {
             "
             (click)="cancelRegistration()">
 
-            <ion-icon
-              name="arrow-back-outline">
-            </ion-icon>
-
+            <ion-icon name="arrow-back-outline"></ion-icon>
           </button>
 
           <div>
-
             <h1>FindBack Registration</h1>
-
-            <p>
-              One-time School ID screening
-            </p>
-
+            <p>One-time School ID screening</p>
           </div>
-
         </header>
 
-        <!-- AUTOMATIC SCANNER -->
+        <!-- LIVE CAMERA SCANNER -->
 
         <section
           *ngIf="
@@ -127,7 +99,6 @@ interface IdDetails {
           class="live-area">
 
           <div class="scan-frame">
-
             <span class="corner tl"></span>
             <span class="corner tr"></span>
             <span class="corner bl"></span>
@@ -141,43 +112,32 @@ interface IdDetails {
             <div
               *ngIf="status === 'starting'"
               class="camera-loading">
-
               Opening rear camera...
-
             </div>
 
             <span class="frame-tip">
               Align your School ID in this frame
             </span>
-
           </div>
 
           <div class="scan-label">
-
-            <ion-icon
-              name="scan-outline">
-            </ion-icon>
-
+            <ion-icon name="scan-outline"></ion-icon>
             {{
               status === 'starting'
                 ? 'Starting camera...'
                 : 'Scanning automatically...'
             }}
-
           </div>
 
           <p class="scan-help">
-
-            Keep the School ID steady.
-
-            The scanner must recognize
-            your complete student number twice.
-
+            Fill the frame with your School ID.
+            Keep the name and student number in focus.
+            The scanner checks the details twice
+            for consistency.
           </p>
-
         </section>
 
-        <!-- REVIEW RECOGNIZED ID -->
+        <!-- RECOGNIZED SCHOOL ID -->
 
         <section
           *ngIf="
@@ -194,42 +154,29 @@ interface IdDetails {
           <h2>Review Your ID Details</h2>
 
           <p>
-            Compare the information below
+            Compare the recognized information
             with your actual School ID
-            before creating the account.
+            before creating an account.
           </p>
 
           <div class="info">
-
             <span>School</span>
-
-            <strong>
-              {{ schoolName }}
-            </strong>
-
+            <strong>{{ schoolName }}</strong>
           </div>
 
           <div class="info">
-
             <span>Student Name</span>
-
             <strong>
               {{ recognizedDetails?.fullName }}
             </strong>
-
           </div>
 
           <div class="info">
-
             <span>Student Number</span>
-
             <strong>
               {{ recognizedDetails?.studentNumber }}
             </strong>
-
           </div>
-
-          <!-- CREATE ACCOUNT -->
 
           <button
             type="button"
@@ -245,10 +192,7 @@ interface IdDetails {
                 ? 'Creating account...'
                 : 'Confirm & Create Account'
             }}
-
           </button>
-
-          <!-- RESCAN -->
 
           <button
             type="button"
@@ -256,17 +200,12 @@ interface IdDetails {
             [disabled]="status === 'saving'"
             (click)="restartScanner()">
 
-            <ion-icon
-              name="refresh-outline">
-            </ion-icon>
-
+            <ion-icon name="refresh-outline"></ion-icon>
             Rescan ID
-
           </button>
-
         </section>
 
-        <!-- ERROR SCREEN -->
+        <!-- ERROR HANDLING -->
 
         <section
           *ngIf="
@@ -276,46 +215,25 @@ interface IdDetails {
           class="result-card error">
 
           <h2>
-
             {{
               status === 'unsupported'
                 ? 'Android App Required'
                 : 'Something went wrong'
             }}
-
           </h2>
 
-          <p>
-            {{ errorMessage }}
-          </p>
-
-          <!-- TRY AGAIN RESETS ID SCAN -->
+          <p>{{ errorMessage }}</p>
 
           <button
             *ngIf="status === 'error'"
             type="button"
             class="primary"
             (click)="retry()">
-
             Try Again
-
           </button>
-
         </section>
 
-        <!-- ================================= -->
-        <!-- UPDATED CONSENT INFORMATION -->
-        <!-- ================================= -->
-        <!--
-          Only show this section after
-          ID recognition.
-
-          Hide automatically when:
-          - Something went wrong
-          - Unsupported device
-          - Registration success
-          - Camera is scanning
-        -->
+        <!-- CONSENT -->
 
         <section
           *ngIf="
@@ -325,7 +243,6 @@ interface IdDetails {
           class="consent">
 
           <label>
-
             <input
               type="checkbox"
               [checked]="consentToSaveOcr"
@@ -333,31 +250,22 @@ interface IdDetails {
               (change)="onConsentChange($event)">
 
             <span>
-
               I consent to save the recognized
               school, student name and student
               number in my FindBack account.
-
             </span>
-
           </label>
 
           <small>
-
-            Only text is submitted.
-
+            Only recognized text is submitted.
             Temporary camera images are removed
-            after on-device OCR processing.
-
+            after on-device OCR.
           </small>
-
         </section>
-
       </main>
-
     </ion-content>
 
-    <!-- REGISTRATION SUCCESS MODAL -->
+    <!-- SUCCESS MODAL -->
 
     <ion-modal
       [isOpen]="showSuccessModal"
@@ -365,7 +273,6 @@ interface IdDetails {
       class="registration-modal">
 
       <ng-template>
-
         <div class="success-dialog">
 
           <ion-icon
@@ -381,49 +288,33 @@ interface IdDetails {
           </p>
 
           <div class="info">
-
             <span>School</span>
-
-            <strong>
-              {{ schoolName }}
-            </strong>
-
+            <strong>{{ schoolName }}</strong>
           </div>
 
           <div class="info">
-
             <span>Name</span>
-
             <strong>
               {{ recognizedDetails?.fullName }}
             </strong>
-
           </div>
 
           <div class="info">
-
             <span>Student Number</span>
-
             <strong>
               {{ recognizedDetails?.studentNumber }}
             </strong>
-
           </div>
 
           <p *ngIf="requiresEmailConfirmation">
-
             Check your email and confirm
             your address before logging in.
-
           </p>
 
           <p>
-
             School ID approval may be required.
-
             You can proceed to log in once your
             account is confirmed and approved.
-
           </p>
 
           <button
@@ -432,29 +323,19 @@ interface IdDetails {
             (click)="goToLogin()">
 
             Proceed to Login
-
-            <ion-icon
-              name="arrow-forward-outline">
-            </ion-icon>
-
+            <ion-icon name="arrow-forward-outline"></ion-icon>
           </button>
 
           <small>
-
             OCR recognition alone does not
             verify ID authenticity.
-
           </small>
-
         </div>
-
       </ng-template>
-
     </ion-modal>
   `,
 
   styles: [`
-
     :host {
       display: block;
     }
@@ -478,42 +359,35 @@ interface IdDetails {
       cursor: pointer;
     }
 
-    /* PAGE */
+    button:disabled {
+      opacity: .55;
+    }
 
     .scan-page {
       min-height: 100%;
-
       padding:
         max(25px, env(safe-area-inset-top))
         18px
         max(30px, env(safe-area-inset-bottom));
     }
 
-    /* HEADER */
-
     .header {
       display: flex;
       align-items: center;
       gap: 12px;
-
       padding: 12px;
-
       background: #102a43e8;
       border-radius: 17px;
-
       color: white;
     }
 
     .header button {
       width: 42px;
       height: 42px;
-
       border: 0;
       border-radius: 12px;
-
       background: #ffffff24;
       color: white;
-
       font-size: 24px;
     }
 
@@ -528,42 +402,30 @@ interface IdDetails {
       color: #d5e9f2;
     }
 
-    /* LIVE SCANNER */
-
     .live-area {
       margin-top: 26px;
-
       display: flex;
       align-items: center;
       flex-direction: column;
-
       gap: 16px;
     }
 
     .scan-frame {
       width: 100%;
       max-width: 480px;
-
       height: min(49vh, 400px);
       min-height: 270px;
-
       border: 1px solid #ffffff70;
       border-radius: 20px;
-
       position: relative;
       overflow: hidden;
     }
 
-    /* SCANNER CORNERS */
-
     .corner {
       position: absolute;
-
       width: 46px;
       height: 46px;
-
       border: 5px solid #43e4a3;
-
       z-index: 3;
     }
 
@@ -595,24 +457,15 @@ interface IdDetails {
       border-top: 0;
     }
 
-    /* SCANNING LINE */
-
     .scan-line {
       position: absolute;
-
       left: 6%;
       right: 6%;
-
       height: 4px;
-
       background: #43e4a3;
-
       border-radius: 99px;
-
       z-index: 2;
-
       box-shadow: 0 0 15px #43e4a3;
-
       animation:
         scan 2.2s infinite
         alternate ease-in-out;
@@ -631,76 +484,51 @@ interface IdDetails {
     .camera-loading {
       position: absolute;
       inset: 0;
-
       display: grid;
       place-items: center;
-
       background: #102a43aa;
       color: white;
     }
 
     .frame-tip {
       position: absolute;
-
       bottom: 15px;
       left: 12px;
       right: 12px;
-
       text-align: center;
-
       padding: 11px;
       border-radius: 9px;
-
       z-index: 4;
-
       background: #102a43dd;
-
       font-size: 12px;
     }
-
-    /* SCANNER LABEL */
 
     .scan-label {
       display: flex;
       align-items: center;
-
       gap: 10px;
-
       padding: 11px 17px;
-
       border-radius: 30px;
-
       background: #102a43dd;
-
       font-size: 12px;
       font-weight: bold;
     }
 
     .scan-help {
       max-width: 330px;
-
       text-align: center;
-
       padding: 13px;
-
       background: #102a43bb;
-
       border-radius: 13px;
-
       font-size: 12px;
       line-height: 1.7;
     }
 
-    /* CONSENT */
-
     .consent {
       max-width: 480px;
-
       margin: 22px auto;
       padding: 17px;
-
       background: #102a43e8;
-
       border-radius: 16px;
       color: white;
     }
@@ -709,7 +537,6 @@ interface IdDetails {
       display: flex;
       gap: 11px;
       align-items: flex-start;
-
       font-size: 12px;
       line-height: 1.6;
     }
@@ -717,39 +544,26 @@ interface IdDetails {
     .consent input {
       width: 19px;
       height: 19px;
-
       flex-shrink: 0;
-
       accent-color: #43e4a3;
     }
 
     .consent small {
       display: block;
-
       margin-top: 12px;
-
       color: #cddfec;
-
       font-size: 10px;
       line-height: 1.6;
     }
 
-    /* RESULT CARD */
-
     .result-card {
       max-width: 480px;
-
       margin: 24px auto 0;
       padding: 22px;
-
       border-radius: 22px;
-
       background: white;
       color: #102a43;
-
-      box-shadow:
-        0 12px 30px #102a4315;
-
+      box-shadow: 0 12px 30px #102a4315;
       text-align: center;
     }
 
@@ -760,7 +574,6 @@ interface IdDetails {
 
     .result-card p {
       color: #708499;
-
       line-height: 1.6;
       font-size: 12px;
     }
@@ -774,27 +587,19 @@ interface IdDetails {
       font-size: 58px;
     }
 
-    /* INFORMATION */
-
     .info {
       padding: 12px;
-
       border: 1px solid #e6edf5;
-
       background: #f7fbff;
-
       border-radius: 12px;
       text-align: left;
-
       margin: 9px 0;
     }
 
     .info span {
       display: block;
-
       font-size: 10px;
       color: #8193a6;
-
       margin-bottom: 4px;
     }
 
@@ -803,31 +608,23 @@ interface IdDetails {
       overflow-wrap: anywhere;
     }
 
-    /* BUTTONS */
-
     .primary,
     .secondary {
       width: 100%;
       min-height: 49px;
-
       margin-top: 13px;
-
       display: flex;
       justify-content: center;
       align-items: center;
-
       gap: 9px;
-
       border: none;
       border-radius: 12px;
-
       font-size: 13px;
       font-weight: bold;
     }
 
     .primary {
       color: white;
-
       background: linear-gradient(
         120deg,
         #1769d2,
@@ -840,12 +637,6 @@ interface IdDetails {
       background: #eaf4ff;
     }
 
-    button:disabled {
-      opacity: .55;
-    }
-
-    /* REGISTRATION SUCCESS MODAL */
-
     ion-modal.registration-modal {
       --width: min(92vw, 430px);
       --height: auto;
@@ -855,14 +646,10 @@ interface IdDetails {
 
     .success-dialog {
       padding: 26px 23px;
-
       max-height: 85dvh;
-
       overflow-y: auto;
-
       background: white;
       color: #102a43;
-
       text-align: center;
     }
 
@@ -873,16 +660,13 @@ interface IdDetails {
 
     .success-dialog p {
       font-size: 12px;
-
       line-height: 1.7;
       color: #536980;
     }
 
     .success-dialog small {
       display: block;
-
       color: #8193a6;
-
       margin-top: 13px;
       font-size: 10px;
     }
@@ -894,42 +678,19 @@ interface IdDetails {
     }
   `]
 })
+
 export class RegistrationScanPage
   implements AfterViewInit, OnDestroy {
 
-  // =====================================
-  // SCANNER STATUS
-  // =====================================
-
   status: ScanStatus = 'starting';
-
   errorMessage = '';
 
-  // =====================================
-  // CONSENT
-  // =====================================
-
   consentToSaveOcr = false;
-
-  // =====================================
-  // RECOGNITION
-  // =====================================
-
   recognizedDetails: IdDetails | null = null;
-
   schoolName = '';
 
-  // =====================================
-  // SUCCESS MODAL
-  // =====================================
-
   showSuccessModal = false;
-
   requiresEmailConfirmation = false;
-
-  // =====================================
-  // CAMERA STATE
-  // =====================================
 
   private active = false;
   private cameraReady = false;
@@ -941,14 +702,30 @@ export class RegistrationScanPage
 
   private previousReading: IdDetails | null = null;
   private matchingReadings = 0;
+  private lastRecognizedAt = 0;
+  private consecutiveFrameErrors = 0;
 
   private scanTimer:
+    ReturnType<typeof setTimeout> | null = null;
+
+  private scanTimeoutTimer:
     ReturnType<typeof setTimeout> | null = null;
 
   private originalBackgrounds: {
     element: HTMLElement;
     value: string;
   }[] = [];
+
+  // =====================================
+  // FASTER SCANNING CONFIGURATION
+  // =====================================
+
+  private readonly initialScanDelayMs = 350;
+  private readonly scanDelayMs = 300;
+  private readonly matchWindowMs = 8_000;
+  private readonly scanTimeoutMs = 25_000;
+  private readonly fullCaptureEvery = 6;
+  private readonly maxFrameErrors = 3;
 
   constructor(
     private readonly auth: AuthService,
@@ -996,10 +773,7 @@ export class RegistrationScanPage
   // =====================================
 
   private transparentBackground(): void {
-
-    if (this.originalBackgrounds.length) {
-      return;
-    }
+    if (this.originalBackgrounds.length) return;
 
     const elements =
       document.querySelectorAll<HTMLElement>(
@@ -1007,22 +781,18 @@ export class RegistrationScanPage
       );
 
     elements.forEach(element => {
-
       this.originalBackgrounds.push({
         element,
         value: element.style.backgroundColor
       });
 
-      element.style.backgroundColor =
-        'transparent';
+      element.style.backgroundColor = 'transparent';
     });
   }
 
   private restoreBackground(): void {
-
     this.originalBackgrounds.forEach(item => {
-      item.element.style.backgroundColor =
-        item.value;
+      item.element.style.backgroundColor = item.value;
     });
 
     this.originalBackgrounds = [];
@@ -1039,26 +809,17 @@ export class RegistrationScanPage
       this.active ||
       this.starting ||
       this.recognizedDetails
-    ) {
-      return;
-    }
-
-    // Registration details must exist.
+    ) return;
 
     if (!this.drafts.get()) {
-
       await this.router.navigateByUrl(
         '/auth',
         { replaceUrl: true }
       );
-
       return;
     }
 
-    // Android native camera only.
-
     if (!Capacitor.isNativePlatform()) {
-
       this.status = 'unsupported';
 
       this.errorMessage =
@@ -1080,7 +841,6 @@ export class RegistrationScanPage
     this.refreshUI();
 
     try {
-
       await CameraPreview.start({
         position: 'rear',
         toBack: true,
@@ -1095,7 +855,6 @@ export class RegistrationScanPage
         !this.active ||
         current !== this.generation
       ) {
-
         await this.stopScanner();
         return;
       }
@@ -1103,18 +862,41 @@ export class RegistrationScanPage
       this.attempts = 0;
       this.previousReading = null;
       this.matchingReadings = 0;
+      this.lastRecognizedAt = 0;
+      this.consecutiveFrameErrors = 0;
 
       this.status = 'scanning';
 
+      // Stop scanning after repeated unreadable frames.
+
+      this.scanTimeoutTimer = setTimeout(() => {
+
+        if (
+          this.destroyed ||
+          !this.active ||
+          current !== this.generation ||
+          this.recognizedDetails
+        ) return;
+
+        this.status = 'error';
+
+        this.errorMessage =
+          'No readable School ID detected within 25 seconds. ' +
+          'Move closer, improve lighting, and tap Try Again.';
+
+        void this.stopScanner();
+
+      }, this.scanTimeoutMs);
+
       this.refreshUI();
 
+      // Start analyzing sooner after preview readiness.
       this.scheduleFrame(
         current,
-        1200
+        this.initialScanDelayMs
       );
 
     } catch {
-
       this.status = 'error';
 
       this.errorMessage =
@@ -1123,14 +905,13 @@ export class RegistrationScanPage
       await this.stopScanner();
 
     } finally {
-
       this.starting = false;
       this.refreshUI();
     }
   }
 
   // =====================================
-  // AUTOMATIC FRAME SCHEDULING
+  // SCHEDULE FRAMES
   // =====================================
 
   private scheduleFrame(
@@ -1142,25 +923,21 @@ export class RegistrationScanPage
       !this.active ||
       current !== this.generation ||
       this.destroyed
-    ) {
-      return;
-    }
+    ) return;
 
     if (this.scanTimer) {
       clearTimeout(this.scanTimer);
     }
 
     this.scanTimer = setTimeout(() => {
-
       this.scanTimer = null;
 
       void this.scanFrame(current);
-
     }, wait);
   }
 
   // =====================================
-  // CAMERA OCR
+  // FAST CAMERA AND OCR
   // =====================================
 
   private async scanFrame(
@@ -1172,33 +949,31 @@ export class RegistrationScanPage
       !this.cameraReady ||
       this.destroyed ||
       current !== this.generation
-    ) {
-      return;
-    }
+    ) return;
 
     let temporaryFile: string | null = null;
 
     try {
-
       this.attempts++;
 
+      // Preview captures for speed.
+      // Every sixth attempt uses a sharper image.
+
       const photo =
-        this.attempts % 4 === 0
+        this.attempts % this.fullCaptureEvery === 0
           ? await CameraPreview.capture({
-              quality: 90,
-              width: 1600,
-              height: 1200
+              quality: 86,
+              width: 1280,
+              height: 960
             })
           : await CameraPreview.captureSample({
-              quality: 90
+              quality: 85
             });
 
       if (
         !this.active ||
         current !== this.generation
-      ) {
-        return;
-      }
+      ) return;
 
       const rawBase64 =
         photo.value.replace(
@@ -1222,109 +997,174 @@ export class RegistrationScanPage
           script: Script.Latin
         });
 
+      this.consecutiveFrameErrors = 0;
+
       if (
         !this.active ||
         current !== this.generation
-      ) {
-        return;
-      }
+      ) return;
 
       const recognized =
-        this.parseSchoolId(
-          result.text || ''
-        );
-
-      // TWO CONSECUTIVE MATCHING READINGS
+        this.parseSchoolId(result.text || '');
 
       if (recognized) {
 
-        const same =
+        const now = Date.now();
+
+        // Same school, student number and
+        // reasonably consistent name.
+
+        const sameId =
           this.previousReading !== null &&
           this.previousReading.schoolCode ===
             recognized.schoolCode &&
           this.previousReading.studentNumber ===
             recognized.studentNumber &&
-          this.previousReading.fullName ===
-            recognized.fullName;
+          now - this.lastRecognizedAt <=
+            this.matchWindowMs &&
+          this.namesLookConsistent(
+            this.previousReading.fullName,
+            recognized.fullName
+          );
 
         this.matchingReadings =
-          same
-            ? this.matchingReadings + 1
-            : 1;
+          sameId ? this.matchingReadings + 1 : 1;
 
-        this.previousReading = recognized;
+        // Prefer the more complete OCR name.
+
+        if (
+          !sameId ||
+          !this.previousReading ||
+          recognized.fullName.length >
+            this.previousReading.fullName.length
+        ) {
+          this.previousReading = recognized;
+        }
+
+        this.lastRecognizedAt = now;
 
         if (this.matchingReadings >= 2) {
 
-          this.recognizedDetails = recognized;
+          const finalDetails =
+            this.previousReading ?? recognized;
+
+          this.recognizedDetails = finalDetails;
 
           this.schoolName =
-            recognized.schoolCode === 'NEUST'
+            finalDetails.schoolCode === 'NEUST'
               ? 'Nueva Ecija University of Science and Technology'
               : 'Colegio de San Leonardo';
 
           this.status = 'recognized';
 
           await this.stopScanner();
-
           this.refreshUI();
+
           return;
         }
 
-      } else {
+      } else if (
+        this.lastRecognizedAt &&
+        Date.now() - this.lastRecognizedAt >
+          this.matchWindowMs
+      ) {
 
         this.previousReading = null;
         this.matchingReadings = 0;
+        this.lastRecognizedAt = 0;
       }
 
     } catch {
 
-      // Retry failed OCR frames.
-      // Do not log private ID information.
+      // Do not print private ID data to logs.
 
-      this.previousReading = null;
-      this.matchingReadings = 0;
+      if (
+        this.active &&
+        current === this.generation
+      ) {
+
+        this.consecutiveFrameErrors++;
+        this.previousReading = null;
+        this.matchingReadings = 0;
+        this.lastRecognizedAt = 0;
+
+        if (
+          this.consecutiveFrameErrors >=
+            this.maxFrameErrors
+        ) {
+
+          this.status = 'error';
+
+          this.errorMessage =
+            'Camera or OCR failed repeatedly. ' +
+            'Check permission and tap Try Again.';
+
+          await this.stopScanner();
+        }
+      }
 
     } finally {
+
+      // Remove temporary captured photo.
 
       if (temporaryFile) {
 
         try {
-
           await Filesystem.deleteFile({
             directory: Directory.Cache,
             path: temporaryFile
           });
 
         } catch {
-          // Android may clear cache later.
+          // Android may clear its cache later.
         }
       }
     }
 
+    // Next scan only after previous OCR has finished.
     this.scheduleFrame(
       current,
-      1400
+      this.scanDelayMs
     );
   }
 
   // =====================================
-  // PARSE SCHOOL ID
+  // NAME CONSISTENCY
+  // =====================================
+
+  private namesLookConsistent(
+    a: string,
+    b: string
+  ): boolean {
+
+    const words = (text: string): string[] =>
+      text
+        .toUpperCase()
+        .replace(/[^A-Z ]/g, ' ')
+        .split(/\s+/)
+        .filter(word => word.length >= 2);
+
+    const second = new Set(words(b));
+
+    return words(a).filter(
+      word => second.has(word)
+    ).length >= 2;
+  }
+
+  // =====================================
+  // SCHOOL ID PARSER
   // =====================================
 
   private parseSchoolId(
     raw: string
   ): IdDetails | null {
 
-    if (!raw.trim()) {
-      return null;
-    }
+    if (!raw.trim()) return null;
 
     const lines = raw
       .split(/\r?\n/)
-      .map(
-        line =>
-          line.trim().replace(/\s+/g, ' ')
+      .map(line =>
+        line.trim().replace(/\s+/g, ' ')
       )
       .filter(Boolean);
 
@@ -1372,19 +1212,16 @@ export class RegistrationScanPage
           fullText
         );
 
-      if (!m) {
-        return null;
-      }
+      if (!m) return null;
 
       studentNumber =
         `SLC${m[1]}-${m[2]}`;
 
       numberLineIndex =
-        lines.findIndex(
-          line =>
-            /S\s*L\s*C|20\d{2}\s*-/.test(
-              line.toUpperCase()
-            )
+        lines.findIndex(line =>
+          /S\s*L\s*C|20\d{2}\s*-/.test(
+            line.toUpperCase()
+          )
         );
 
     } else {
@@ -1394,26 +1231,24 @@ export class RegistrationScanPage
           fullText
         );
 
-      if (!m) {
-        return null;
-      }
+      if (!m) return null;
 
       studentNumber =
         m[0].replace(/\s+/g, '');
 
       numberLineIndex =
-        lines.findIndex(
-          line =>
-            /20\d{2}\s*-/.test(
-              line.toUpperCase()
-            )
+        lines.findIndex(line =>
+          /20\d{2}\s*-/.test(
+            line.toUpperCase()
+          )
         );
     }
 
-    // STUDENT NAME DETECTION
+    // Exclude common school labels and website text
+    // from the student-name field.
 
     const excluded =
-      /\b(REPUBLIC|PHILIPPINES|NUEVA|ECIJA|UNIVERSITY|SCIENCE|TECHNOLOGY|CERTIFIED|COLEGIO|LEONARDO|CAMPUS|STUDENT|NUMBER|COLLEGE|DEPARTMENT|EXCELLENCE|COURSE|BSIT|IDENTIFICATION|CARD|SLC)\b/i;
+      /\b(REPUBLIC|PHILIPPINES|NUEVA|ECIJA|UNIVERSITY|SCIENCE|TECHNOLOGY|CERTIFIED|COLEGIO|LEONARDO|CAMPUS|STUDENT|NUMBER|COLLEGE|DEPARTMENT|EXCELLENCE|COURSE|BSIT|IDENTIFICATION|CARD|SLC|NEUST|EDU|WWW|HTTP|GOV|WEBSITE|SCHOOL|ADDRESS|CONTACT)\b/i;
 
     const searchOrder = [
       ...lines.slice(
@@ -1449,10 +1284,7 @@ export class RegistrationScanPage
         !excluded.test(candidate);
 
       if (valid) {
-
-        fullName =
-          candidate.toUpperCase();
-
+        fullName = candidate.toUpperCase();
         break;
       }
     }
@@ -1467,12 +1299,10 @@ export class RegistrationScanPage
   }
 
   // =====================================
-  // CONSENT HANDLER
+  // CONSENT
   // =====================================
 
-  onConsentChange(
-    event: Event
-  ): void {
+  onConsentChange(event: Event): void {
 
     this.consentToSaveOcr =
       (event.target as HTMLInputElement).checked;
@@ -1486,8 +1316,7 @@ export class RegistrationScanPage
 
   async completeRegistration(): Promise<void> {
 
-    const draft =
-      this.drafts.get();
+    const draft = this.drafts.get();
 
     if (
       !draft ||
@@ -1495,47 +1324,34 @@ export class RegistrationScanPage
       !this.consentToSaveOcr ||
       this.status === 'saving' ||
       this.status === 'success'
-    ) {
-      return;
-    }
+    ) return;
 
     this.status = 'saving';
     this.errorMessage = '';
-
     this.refreshUI();
 
     try {
 
-      const details =
-        this.recognizedDetails;
+      const details = this.recognizedDetails;
 
       const { data, error } =
         await this.auth.client.auth.signUp({
+
           email: draft.email,
           password: draft.password,
 
           options: {
             data: {
-              first_name:
-                draft.firstName,
-
-              full_name:
-                details.fullName,
-
-              school_code:
-                details.schoolCode,
-
-              student_number:
-                details.studentNumber,
-
+              first_name: draft.firstName,
+              full_name: details.fullName,
+              school_code: details.schoolCode,
+              student_number: details.studentNumber,
               findback_ocr_screened: true
             }
           }
         });
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
       if (
         !data.user ||
@@ -1543,7 +1359,8 @@ export class RegistrationScanPage
       ) {
 
         throw new Error(
-          'Account could not be created. This email may already be registered.'
+          'Account could not be created. ' +
+          'This email may already be registered.'
         );
       }
 
@@ -1558,7 +1375,8 @@ export class RegistrationScanPage
         if (logoutError) {
 
           throw new Error(
-            'Account created, but sign-out failed. Please sign out before logging in.'
+            'Account created, but sign-out failed. ' +
+            'Sign out before logging in.'
           );
         }
       }
@@ -1572,10 +1390,6 @@ export class RegistrationScanPage
 
     } catch (error: unknown) {
 
-      // =================================
-      // UPDATED ERROR BEHAVIOR
-      // =================================
-
       this.status = 'error';
 
       this.errorMessage =
@@ -1583,51 +1397,34 @@ export class RegistrationScanPage
           ? error.message
           : 'Unable to create account. Please try again.';
 
-      // Reset consent after failed signup.
-
       this.consentToSaveOcr = false;
-
-      // Consent panel is automatically
-      // hidden while status === 'error'.
 
       this.refreshUI();
     }
   }
 
   // =====================================
-  // TRY AGAIN
+  // RETRY SCANNER
   // =====================================
 
   retry(): void {
 
-    if (this.status !== 'error') {
-      return;
+    if (this.status === 'error') {
+      this.restartScanner();
     }
-
-    // Do not resubmit the rejected ID.
-    // Reset and open scanner again.
-
-    this.restartScanner();
   }
-
-  // =====================================
-  // RESTART CAMERA
-  // =====================================
 
   restartScanner(): void {
 
     this.recognizedDetails = null;
-
     this.schoolName = '';
-
     this.consentToSaveOcr = false;
 
     this.previousReading = null;
-
     this.matchingReadings = 0;
+    this.lastRecognizedAt = 0;
 
     this.errorMessage = '';
-
     this.status = 'starting';
 
     this.refreshUI();
@@ -1644,9 +1441,7 @@ export class RegistrationScanPage
     if (
       this.status === 'saving' ||
       this.status === 'success'
-    ) {
-      return;
-    }
+    ) return;
 
     await this.stopScanner();
 
@@ -1654,31 +1449,24 @@ export class RegistrationScanPage
 
     await this.router.navigateByUrl(
       '/auth',
-      {
-        replaceUrl: true
-      }
+      { replaceUrl: true }
     );
   }
 
   // =====================================
-  // PROCEED TO LOGIN
+  // RETURN TO LOGIN
   // =====================================
 
   async goToLogin(): Promise<void> {
 
-    if (this.status !== 'success') {
-      return;
-    }
+    if (this.status !== 'success') return;
 
     this.showSuccessModal = false;
-
     this.drafts.clear();
 
     await this.router.navigateByUrl(
       '/auth',
-      {
-        replaceUrl: true
-      }
+      { replaceUrl: true }
     );
   }
 
@@ -1689,13 +1477,16 @@ export class RegistrationScanPage
   private async stopScanner(): Promise<void> {
 
     this.active = false;
-
     ++this.generation;
 
     if (this.scanTimer) {
-
       clearTimeout(this.scanTimer);
       this.scanTimer = null;
+    }
+
+    if (this.scanTimeoutTimer) {
+      clearTimeout(this.scanTimeoutTimer);
+      this.scanTimeoutTimer = null;
     }
 
     if (this.cameraReady) {
@@ -1703,16 +1494,13 @@ export class RegistrationScanPage
       this.cameraReady = false;
 
       try {
-
         await CameraPreview.stop();
-
       } catch {
         // Camera may already be stopped.
       }
     }
 
     this.restoreBackground();
-
     this.refreshUI();
   }
 }
